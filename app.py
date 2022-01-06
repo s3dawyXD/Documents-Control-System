@@ -2,13 +2,15 @@ from flask import Flask, request, abort, jsonify, redirect, request
 from flask_cors import CORS
 import mysql.connector
 
-
+# create and configure the app
 app = Flask(__name__)
 CORS(app)
 
-mydb_connector = mysql.connector
 
 
+'''
+convert mysql response to json object 
+'''
 def json_data(cursor):
     result_list = cursor.fetchall()
     fields_list = cursor.description
@@ -27,6 +29,15 @@ def json_data(cursor):
         return []
 
 
+'''
+add document endpoint
+
+create document record at document db and initial draft at draft db 
+
+@params: document_type , reciept, reciept_date, status, user, content
+returns: document_id, draft_id
+'''
+
 @app.route('/document', methods=['POST'])
 def add_document():
     try:
@@ -34,7 +45,7 @@ def add_document():
         body = request.get_json()
         document_type = body.get('document_type')
         reciept = body.get('reciept')
-        reciept_date = body.get('reciept_date',)
+        reciept_date = body.get('reciept_date')
         status = body.get('status')
         user = body.get('user')
         content = body.get('content')
@@ -73,6 +84,16 @@ def add_document():
         mydb.close()
 
 
+'''
+get documents endpoint
+
+return document with all drafts of it
+
+@params: 
+returns: document_type , reciept, reciept_date, status, user, content, document_id, draft_id
+'''
+
+
 @app.route('/document', methods=['GET'])
 def get_document():
     try:
@@ -95,6 +116,16 @@ def get_document():
     finally:
         mydb.close()
 
+
+'''
+make copy and send to user endpoint
+
+create document copy at copies db with sender and recever users
+
+
+@params: draft_id, from(sender), to(recever)
+returns: copy_id
+'''
 
 @app.route('/circulate', methods=['POST'])
 def send_document():
@@ -123,6 +154,16 @@ def send_document():
     except:
         abort(400)
     
+
+'''
+make document draft  endpoint
+
+create document draft at draft db with user 
+
+
+@params: document_id, content, user
+returns: draft_id
+'''
 
 @app.route('/draft', methods=['POST'])
 def edit_document():
@@ -154,6 +195,17 @@ def edit_document():
     finally:
         mydb.close()
 
+
+'''
+get all document  copies endpoint
+
+return document copies with all sender and recever
+
+
+@params: 
+returns: document_type , reciept, reciept_date, status, user, content, document_id, draft_id, copy_id, from, to
+'''
+
 @app.route('/circulate', methods=['GET'])
 def get_copies():
     try:
@@ -178,6 +230,29 @@ def get_copies():
         abort(400)
     finally:
         mydb.close()
+
+'''
+error handlers
+'''
+
+
+@app.errorhandler(404)
+def not_found(error):
+    return jsonify({
+        'success': False,
+        "error": 404,
+        "message": "resource not found"
+    }), 404
+
+
+@app.errorhandler(400)
+def bad_request(error):
+    return jsonify({
+        'success': False,
+        "error": 400,
+        "message": "Bad Request"
+    }), 400
+
 
 
 
