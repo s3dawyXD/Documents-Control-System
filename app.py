@@ -231,6 +231,32 @@ def get_copies():
     finally:
         mydb.close()
 
+@app.route('/document', methods=['DELETE'])
+def delete_document():
+    try:
+        body = request.get_json()
+        document_id = body.get("document_id")
+        if document_id == None :
+            abort(400)
+        mydb = mysql.connector.connect(host="127.0.0.1", user="root",
+                                       password="123", port=3306, database="documents_control_system")
+        cur = mydb.cursor()
+        document_delete_sql = f"delete from document where document_id = %s;"
+        document_delete_val= (document_id)
+        cur.execute(document_delete_sql,document_delete_val)
+        mydb.commit()
+        cur.close()
+        return jsonify({
+            'success': True,
+            'document_id': document_id
+        }), 200
+    except:
+        abort(400)
+    finally:
+        mydb.close()
+
+
+
 '''
 error handlers
 '''
