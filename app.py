@@ -98,15 +98,13 @@ def get_document():
 
 @app.route('/circulate', methods=['POST'])
 def send_document():
-    
+    try:
         body = request.get_json()
         draft_id = body.get("draft_id")
         sender = body.get("from")
         recever = body.get("to")
         if draft_id == None or sender == None or recever == None:
             abort(400)
-        
-
         mydb = mysql.connector.connect(host="127.0.0.1", user="root",
                                        password="123", port=3306, database="documents_control_system")
         cur = mydb.cursor()
@@ -122,7 +120,37 @@ def send_document():
             'success': True,
             'copy_id': copy_id
         }), 200
+    except:
+        abort(400)
+    finally:
+        mydb.close()
+
+@app.route('/draft', methods=['POST'])
+def edit_document():
     
+        body = request.get_json()
+        document_id = body.get("document_id")
+        content = body.get("content")
+        user = body.get("user")
+        if document_id == None :
+            abort(400)
+        mydb = mysql.connector.connect(host="127.0.0.1", user="root",
+                                       password="123", port=3306, database="documents_control_system")
+        cur = mydb.cursor()
+
+        draft_insert_sql = f"insert into draft (content,user,document_id) \
+        values (%s,%s,%s);"
+        draft_insert_val = (content, user, document_id)
+        cur.execute(draft_insert_sql, draft_insert_val)
+        mydb.commit()
+        draft_id = cur.lastrowid
+
+        cur.close()
+        return jsonify({
+            'success': True,
+            'draft_id': draft_id
+        }), 200
+     
 
 
 
