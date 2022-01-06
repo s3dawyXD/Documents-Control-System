@@ -98,7 +98,7 @@ def get_document():
 
 @app.route('/circulate', methods=['POST'])
 def send_document():
-    try:
+    
         body = request.get_json()
         draft_id = body.get("draft_id")
         sender = body.get("from")
@@ -111,7 +111,7 @@ def send_document():
                                        password="123", port=3306, database="documents_control_system")
         cur = mydb.cursor()
 
-        copy_insert_sql = "insert into copies(from,to,draft_id) \
+        copy_insert_sql = f"insert into copies(`from`,`to`,draft_id) \
             values(%s,%s,%s);"
         copy_insert_val = (sender,recever,draft_id)
         cur.execute(copy_insert_sql, copy_insert_val)
@@ -122,12 +122,9 @@ def send_document():
             'success': True,
             'copy_id': copy_id
         }), 200
-    except:
-        abort(400)
-    finally:
-        mydb.close()
+    
 
 
-        
+
 if __name__ == '__main__':
     app.run(debug=True)
