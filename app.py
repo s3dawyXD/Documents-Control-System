@@ -80,7 +80,7 @@ def get_document():
                                        password="123", port=3306, database="documents_control_system")
         cur = mydb.cursor()
         document_get_sql = "select document.*,draft.draft_id,draft.content,draft.user from document \
-        left join draft on document.document_id = draft.document_id;"
+        left join draft on document.document_id = draft.document_id order by draft.document_id,draft.draft_id;"
         cur.execute(document_get_sql)
 
         output = json_data(cur)
@@ -122,12 +122,11 @@ def send_document():
         }), 200
     except:
         abort(400)
-    finally:
-        mydb.close()
+    
 
 @app.route('/draft', methods=['POST'])
 def edit_document():
-    
+    try:
         body = request.get_json()
         document_id = body.get("document_id")
         content = body.get("content")
@@ -150,7 +149,35 @@ def edit_document():
             'success': True,
             'draft_id': draft_id
         }), 200
-     
+    except:
+        abort(400)
+    finally:
+        mydb.close()
+
+@app.route('/circulate', methods=['GET'])
+def get_copies():
+    try:
+        mydb = mysql.connector.connect(host="127.0.0.1", user="root",
+                                       password="123", port=3306, database="documents_control_system")
+        cur = mydb.cursor()
+        document_get_sql = "select document.*,draft.draft_id,draft.content,draft.user , \
+        copies.copy_id,copies.from,copies.to from document \
+        left join draft on document.document_id = draft.document_id inner join \
+        copies on draft.draft_id = copies.draft_id\
+        order by draft.document_id,draft.draft_id;"
+        cur.execute(document_get_sql)
+
+        output = json_data(cur)
+
+        cur.close()
+        return jsonify({
+            'success': True,
+            'data': output
+        }), 200
+    except:
+        abort(400)
+    finally:
+        mydb.close()
 
 
 
