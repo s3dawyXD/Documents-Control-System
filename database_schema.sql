@@ -13,7 +13,7 @@ create table draft(
     user varchar(255) default null,
     document_id int NOT NULL,
     PRIMARY KEY (draft_id),
-    FOREIGN KEY (document_id) REFERENCES document(document_id)
+    FOREIGN KEY (document_id) REFERENCES document(document_id) ON DELETE CASCADE
 );
 
 create table copies(
@@ -22,5 +22,5 @@ create table copies(
     `to` varchar(255) not null,
     draft_id int,
     PRIMARY KEY (copy_id),
-    FOREIGN KEY (draft_id) REFERENCES draft(draft_id)
+    FOREIGN KEY (draft_id) REFERENCES draft(draft_id) ON DELETE CASCADE
 );
