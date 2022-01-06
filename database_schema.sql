@@ -1,8 +1,9 @@
 create table document(
     document_id int NOT NULL AUTO_INCREMENT,
-    `type` varchar(255) default null,
+    document_type varchar(255) default null,
     reciept varchar(255) default null,
     reciept_date datetime default null,
+    status varchar(255) NOT NULL,
     PRIMARY KEY (document_id)
 );
 
